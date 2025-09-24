@@ -36,7 +36,14 @@ jobs:
   e2e-integration:
     name: E2E Integration test
     needs: build
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+          - macos-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Set up JDK 21
         uses: actions/setup-java@v5
@@ -46,11 +53,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
       - name: Download Distribution
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: actions/download-artifact@v4
         with:
           name: artifact
           path: artifact
       - name: Extract Distribution
+        if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: ihiroky/extract-action@v1
         with:
           file_path: artifact/similarity/build/distributions/similarity.tar
